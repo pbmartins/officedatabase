@@ -48,9 +48,9 @@ public class window extends JFrame {
         addWindowListener(new WindowHandler());
 
         //Adicionar à base de dados
-        NameLabel = new JLabel("Nome:");
+        NameLabel = new JLabel("Nome do cliente:");
     	add(NameLabel);
-        NameField = new JTextField("",35);
+        NameField = new JTextField("",32);
         add(NameField);
 
         FileTypeLabel = new JLabel("Tipo de processo:");
@@ -90,7 +90,7 @@ public class window extends JFrame {
         //Tabela
 
         Object column_names[] = {
-            "Nome",
+            "Nome do cliente",
             "Tipo de processo",
             "Número do processo"
         };
