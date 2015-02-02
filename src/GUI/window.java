@@ -3,8 +3,10 @@ package GUI;
 import java.awt.FlowLayout;
 import java.awt.Dimension;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.table.*;
+
 import java.util.*;
 import java.io.*;
 /**
@@ -13,8 +15,11 @@ import java.io.*;
  */
 public class window extends JFrame {
     
-    private JLabel AddLabel;
-    private JLabel NameLabel;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JLabel NameLabel;
     private JLabel ContactLabel;
     private JLabel FileNumberLabel;
     private JTextField NameField;
@@ -24,7 +29,7 @@ public class window extends JFrame {
     private JButton RemoveButton;
     private JButton SearchButton;
     private JButton ResetButton;
-    private JComboBox SearchCB;
+    private JComboBox<String> SearchCB;
 
     private JTable ListTable;
     private TableModel model;
@@ -76,8 +81,8 @@ public class window extends JFrame {
         SearchButton.addMouseMotionListener(SearchButton_Handler);
         add(SearchButton);
 
-        Object args[] = {"Conjuntamente","Independentemente"};
-        SearchCB = new JComboBox(args);
+        String args[] = {"Conjuntamente","Independentemente"};
+        SearchCB = new JComboBox<String>(args);
         add(SearchCB);
 
 
@@ -99,7 +104,8 @@ public class window extends JFrame {
         }
 
         model = new DefaultTableModel(data, column_names) {
-            @Override
+			private static final long serialVersionUID = 1L;
+			@Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -185,9 +191,9 @@ public class window extends JFrame {
 
             //Search in table
             
-            TableRowSorter sorter = new TableRowSorter(model);
+            TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(model);
             ListTable.setRowSorter(sorter);
-            List filters = new ArrayList();
+            List<RowFilter<TableModel, Integer>> filters = new ArrayList<RowFilter<TableModel, Integer>>();
 
             if (contact.length()==0 && file_number.length()==0) {
                 filters.add(RowFilter.regexFilter(name));
@@ -214,10 +220,10 @@ public class window extends JFrame {
                 sorter.setRowFilter(null);
                 JOptionPane.showMessageDialog(null,"Pelo menos, um dos campos não pode estar em branco");
             } else if(SearchCB.getSelectedIndex()==0) {
-                RowFilter row_filter = RowFilter.andFilter(filters);
+                RowFilter<TableModel, Integer> row_filter = RowFilter.andFilter(filters);
                 sorter.setRowFilter(row_filter);
             } else if(SearchCB.getSelectedIndex()==1) {
-                RowFilter row_filter = RowFilter.orFilter(filters);
+                RowFilter<TableModel, Integer> row_filter = RowFilter.orFilter(filters);
                 sorter.setRowFilter(row_filter);
             }
 
@@ -279,7 +285,7 @@ public class window extends JFrame {
         public void mouseClicked(MouseEvent event) {
             //Reset Search
             
-            TableRowSorter sorter = new TableRowSorter(model);
+            TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(model);
             ListTable.setRowSorter(sorter);
             sorter.setRowFilter(null);
             
@@ -364,6 +370,7 @@ public class window extends JFrame {
                 i++;
             }
         }
+        sf.close();
         
         if (i<interval) {
             b = database;
