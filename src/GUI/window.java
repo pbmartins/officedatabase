@@ -20,10 +20,10 @@ public class window extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JLabel NameLabel;
-    private JLabel ContactLabel;
+    private JLabel FileTypeLabel;
     private JLabel FileNumberLabel;
     private JTextField NameField;
-    private JTextField ContactField;
+    private JTextField FileTypeField;
     private JTextField FileNumberField;
     private JButton AddButton;
     private JButton RemoveButton;
@@ -50,13 +50,13 @@ public class window extends JFrame {
         //Adicionar à base de dados
         NameLabel = new JLabel("Nome:");
     	add(NameLabel);
-        NameField = new JTextField("",40);
+        NameField = new JTextField("",35);
         add(NameField);
 
-        ContactLabel = new JLabel("Contacto:");
-        add(ContactLabel);
-        ContactField = new JTextField("",40);
-        add(ContactField);
+        FileTypeLabel = new JLabel("Tipo de processo:");
+        add(FileTypeLabel);
+        FileTypeField = new JTextField("",32);
+        add(FileTypeField);
 
         FileNumberLabel = new JLabel("Número do processo:");
         add(FileNumberLabel);
@@ -91,7 +91,7 @@ public class window extends JFrame {
 
         Object column_names[] = {
             "Nome",
-            "Contacto",
+            "Tipo de processo",
             "Número do processo"
         };
 
@@ -99,7 +99,7 @@ public class window extends JFrame {
 
         for (int i=0; i<database.length; i++) {
             data[i][0] = database[i].name;
-            data[i][1] = database[i].contact;
+            data[i][1] = database[i].file_type;
             data[i][2] = database[i].file_number;
         }
 
@@ -117,11 +117,11 @@ public class window extends JFrame {
         for (int i=0; i<3; i++) {
             list_column = ListTable.getColumnModel().getColumn(i);
             if (i == 0) {
-                list_column.setPreferredWidth(250); //first column is bigger
+                list_column.setPreferredWidth(220); //first column is bigger
             } else if(i == 1) {
-                list_column.setPreferredWidth(120);
-            } else if(i == 2) {
                 list_column.setPreferredWidth(180);
+            } else if(i == 2) {
+                list_column.setPreferredWidth(140);
             }
         }
 
@@ -146,9 +146,9 @@ public class window extends JFrame {
             file newC = new file();
 
             newC.name = NameField.getText();
-            newC.contact = Integer.parseInt(ContactField.getText());
+            newC.file_type = FileTypeField.getText();
             newC.file_number = Integer.parseInt(FileNumberField.getText());
-            if (NameField.getText().length()==0 || ContactField.getText().length()==0 || FileNumberField.getText().length()==0) JOptionPane.showMessageDialog(null,"Nenhum campo pode estar vazio!");
+            if (NameField.getText().length()==0 || FileTypeField.getText().length()==0 || FileNumberField.getText().length()==0) JOptionPane.showMessageDialog(null,"Nenhum campo pode estar vazio!");
             else {
             //Add to File
             file b[] = database;
@@ -163,7 +163,7 @@ public class window extends JFrame {
 
             //Add to Table
             DefaultTableModel model = (DefaultTableModel) ListTable.getModel();
-            model.addRow(new Object[] { NameField.getText(), Integer.parseInt(ContactField.getText()), Integer.parseInt(FileNumberField.getText()) });
+            model.addRow(new Object[] { NameField.getText(), FileTypeField.getText(), Integer.parseInt(FileNumberField.getText()) });
 
             JOptionPane.showMessageDialog(null,"Arquivo adicionado com sucesso!");
         }
@@ -186,7 +186,7 @@ public class window extends JFrame {
         //Search Database event
         public void mouseClicked(MouseEvent event) {
             String name = NameField.getText();
-            String contact = ContactField.getText();
+            String file_type = FileTypeField.getText();
             String file_number = FileNumberField.getText();
 
             //Search in table
@@ -195,28 +195,28 @@ public class window extends JFrame {
             ListTable.setRowSorter(sorter);
             List<RowFilter<TableModel, Integer>> filters = new ArrayList<RowFilter<TableModel, Integer>>();
 
-            if (contact.length()==0 && file_number.length()==0) {
+            if (file_type.length()==0 && file_number.length()==0) {
                 filters.add(RowFilter.regexFilter(name));
             } else if (name.length()==0 && file_number.length()==0) {
-                filters.add(RowFilter.regexFilter(contact));
-            } else if (name.length()==0 && contact.length()==0) {
+                filters.add(RowFilter.regexFilter(file_type));
+            } else if (name.length()==0 && file_type.length()==0) {
                 filters.add(RowFilter.regexFilter(file_number));
             } else if (file_number.length()==0) {
                 filters.add(RowFilter.regexFilter(name));
-                filters.add(RowFilter.regexFilter(contact));
-            } else if (contact.length()==0) {
+                filters.add(RowFilter.regexFilter(file_type));
+            } else if (file_type.length()==0) {
                 filters.add(RowFilter.regexFilter(name));
                 filters.add(RowFilter.regexFilter(file_number));
             } else if (name.length()==0) {
-                filters.add(RowFilter.regexFilter(contact));
+                filters.add(RowFilter.regexFilter(file_type));
                 filters.add(RowFilter.regexFilter(file_number));
             } else {
                 filters.add(RowFilter.regexFilter(name));
-                filters.add(RowFilter.regexFilter(contact));
+                filters.add(RowFilter.regexFilter(file_type));
                 filters.add(RowFilter.regexFilter(file_number));
             }
 
-            if (name.length()==0 && contact.length()==0 && file_number.length()==0) {
+            if (name.length()==0 && file_type.length()==0 && file_number.length()==0) {
                 sorter.setRowFilter(null);
                 JOptionPane.showMessageDialog(null,"Pelo menos, um dos campos não pode estar em branco");
             } else if(SearchCB.getSelectedIndex()==0) {
@@ -337,8 +337,7 @@ public class window extends JFrame {
         File database_file = new File("database.txt");
         Scanner sf = new Scanner(database_file);
         int interval = 5, i=0;
-        String tmp_contact = new String();
-        String tmp_file = new String();
+        String tmp_file_number = new String();
         
         file database[] = new file[interval];
         file b[];
@@ -348,10 +347,9 @@ public class window extends JFrame {
             if (i<interval) {
                 file newC = new file();
                 newC.name = sf.nextLine();
-                tmp_contact = sf.nextLine();
-                newC.contact = Integer.parseInt(tmp_contact);
-                tmp_file = sf.nextLine();
-                newC.file_number = Integer.parseInt(tmp_file);
+                newC.file_type = sf.nextLine();
+                tmp_file_number = sf.nextLine();
+                newC.file_number = Integer.parseInt(tmp_file_number);
                 database[i] = newC;
                 i++;
             } else {
@@ -362,10 +360,9 @@ public class window extends JFrame {
                 }
                 file newC = new file();
                 newC.name = sf.nextLine();
-                tmp_contact = sf.nextLine();
-                newC.contact = Integer.parseInt(tmp_contact);
-                tmp_file = sf.nextLine();
-                newC.file_number = Integer.parseInt(tmp_file);
+                newC.file_type = sf.nextLine();
+                tmp_file_number = sf.nextLine();
+                newC.file_number = Integer.parseInt(tmp_file_number);
                 database[i] = newC;
                 i++;
             }
@@ -406,7 +403,7 @@ public class window extends JFrame {
         PrintWriter pw = new PrintWriter(database_file);
         for (int i=0; i<database.length; i++) {
             pw.println(database[i].name);
-            pw.println(database[i].contact);
+            pw.println(database[i].file_type);
             pw.println(database[i].file_number);
         }
         pw.close();
@@ -417,6 +414,6 @@ public class window extends JFrame {
 
 class file {
     String name;
-    int contact;
+    String file_type;
     int file_number;
 }
