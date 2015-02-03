@@ -14,10 +14,7 @@ import java.io.*;
  * @author pedromartins
  */
 public class window extends JFrame {
-    
-    /**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private JLabel NameLabel;
     private JLabel FileTypeLabel;
@@ -143,29 +140,31 @@ public class window extends JFrame {
     public class addDatabaseHandler implements MouseListener, MouseMotionListener {
         //Add to Database event
         public void mouseClicked(MouseEvent event) {
-            file newC = new file();
-
-            newC.name = NameField.getText();
-            newC.file_type = FileTypeField.getText();
-            newC.file_number = Integer.parseInt(FileNumberField.getText());
+            
             if (NameField.getText().length()==0 || FileTypeField.getText().length()==0 || FileNumberField.getText().length()==0) JOptionPane.showMessageDialog(null,"Nenhum campo pode estar vazio!");
             else {
-            //Add to File
-            file b[] = database;
-            database = new file[b.length+1];
-            int i;
+            	file newC = new file();
 
-            for (i=0; i<b.length; i++) {
-                database[i] = b[i];
-            } 
+                newC.name = NameField.getText();
+                newC.file_type = FileTypeField.getText();
+                newC.file_number = Integer.parseInt(FileNumberField.getText());
+            
+                //Add to File
+                file b[] = database;
+                database = new file[b.length+1];
+                int i;
 
-            database[i] = newC;
+                for (i=0; i<b.length; i++) {
+                	database[i] = b[i];
+                } 
 
-            //Add to Table
-            DefaultTableModel model = (DefaultTableModel) ListTable.getModel();
-            model.addRow(new Object[] { NameField.getText(), FileTypeField.getText(), Integer.parseInt(FileNumberField.getText()) });
+                database[i] = newC;
 
-            JOptionPane.showMessageDialog(null,"Arquivo adicionado com sucesso!");
+                //Add to Table
+                DefaultTableModel model = (DefaultTableModel) ListTable.getModel();
+                model.addRow(new Object[] { NameField.getText(), FileTypeField.getText(), Integer.parseInt(FileNumberField.getText()) });
+
+                JOptionPane.showMessageDialog(null,"Arquivo adicionado com sucesso!");
         }
         }
 
@@ -196,24 +195,24 @@ public class window extends JFrame {
             List<RowFilter<TableModel, Integer>> filters = new ArrayList<RowFilter<TableModel, Integer>>();
 
             if (file_type.length()==0 && file_number.length()==0) {
-                filters.add(RowFilter.regexFilter(name));
+                filters.add(RowFilter.regexFilter("(?i)"+name));
             } else if (name.length()==0 && file_number.length()==0) {
-                filters.add(RowFilter.regexFilter(file_type));
+                filters.add(RowFilter.regexFilter("(?i)"+file_type));
             } else if (name.length()==0 && file_type.length()==0) {
-                filters.add(RowFilter.regexFilter(file_number));
+                filters.add(RowFilter.regexFilter("(?i)"+file_number));
             } else if (file_number.length()==0) {
-                filters.add(RowFilter.regexFilter(name));
-                filters.add(RowFilter.regexFilter(file_type));
+                filters.add(RowFilter.regexFilter("(?i)"+name));
+                filters.add(RowFilter.regexFilter("(?i)"+file_type));
             } else if (file_type.length()==0) {
-                filters.add(RowFilter.regexFilter(name));
-                filters.add(RowFilter.regexFilter(file_number));
+                filters.add(RowFilter.regexFilter("(?i)"+name));
+                filters.add(RowFilter.regexFilter("(?i)"+file_number));
             } else if (name.length()==0) {
-                filters.add(RowFilter.regexFilter(file_type));
-                filters.add(RowFilter.regexFilter(file_number));
+                filters.add(RowFilter.regexFilter("(?i)"+file_type));
+                filters.add(RowFilter.regexFilter("(?i)"+file_number));
             } else {
-                filters.add(RowFilter.regexFilter(name));
-                filters.add(RowFilter.regexFilter(file_type));
-                filters.add(RowFilter.regexFilter(file_number));
+                filters.add(RowFilter.regexFilter("(?i)"+name));
+                filters.add(RowFilter.regexFilter("(?i)"+file_type));
+                filters.add(RowFilter.regexFilter("(?i)"+file_number));
             }
 
             if (name.length()==0 && file_type.length()==0 && file_number.length()==0) {
@@ -250,8 +249,13 @@ public class window extends JFrame {
             int remove=0, c=0;
             DefaultTableModel model = (DefaultTableModel) ListTable.getModel();
             for (int i=0; i<database.length; i++) {
-                Object row = model.getValueAt(i,0);
-                if (row.toString().indexOf(NameField.getText())>-1) {
+                Object name_row = model.getValueAt(i,0);
+                Object filenumber_row = model.getValueAt(i,2);
+                String s1 = name_row.toString().toLowerCase();
+                String s2 = NameField.getText().toLowerCase();
+                int i1 = Integer.parseInt(filenumber_row.toString());
+                int i2 = Integer.parseInt(FileNumberField.getText());
+                if (s1.indexOf(s2)>-1 || i1==i2) {
                     remove=i;
                     c++;
                 }
@@ -288,6 +292,12 @@ public class window extends JFrame {
             TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(model);
             ListTable.setRowSorter(sorter);
             sorter.setRowFilter(null);
+            
+            //Reset Fields
+            
+            NameField.setText(null);
+            FileTypeField.setText(null);
+            FileNumberField.setText(null);
             
         }
 

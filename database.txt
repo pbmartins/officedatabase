@@ -13,17 +13,17 @@ Crime
 Ralkim
 Dívidas
 1082
-
+Sem nome
 Extra-judiciário
 1083
 Daniela Verga
 Crime
 1084
 Fernando Silva
-Somária
+Sumária
 1085
 Pedro Silva
-Somária
+Sumária
 1086
 Lima e Pereira
 AECOPEC
@@ -35,10 +35,10 @@ Const. P. Lima Tavares
 Sumaríssima
 1089
 CAIXIGRESSO
-
+Sem tipo de processo
 1090
 Carla Ferreira
-Incompetência paternal
+Regulação poder paternal
 1091
 António M. Pereira
 Execução
@@ -82,14 +82,15 @@ Acidente viação
 Arménio Domingues
 Diversos
 1105
-Armindo Maruques
+Armindo Marques
 Injunção
 1106
 Oficioso XI
 Crime
 1107
 Márcio Domingues
-Crime 1108
+Crime
+1108
 Manuel P. Silva
 Crime
 1109

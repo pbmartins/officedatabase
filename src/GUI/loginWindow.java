@@ -1,6 +1,8 @@
 package GUI;
 
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -39,14 +41,18 @@ public class loginWindow extends JFrame {
 		loginDatabase = loadLogin();
 
 		//Structure
+		enterHandler enter_handler = new enterHandler();
+		
 		UserLabel = new JLabel("Utilizador:");
 		add(UserLabel);
 		UserField = new JTextField("",25);
+		UserField.addActionListener(enter_handler);
 		add(UserField);
 
 		PassLabel = new JLabel("Password:");
 		add(PassLabel);
 		PassField = new JPasswordField("",25);
+		PassField.addActionListener(enter_handler);
 		add(PassField);
 
 		LoginButton = new JButton("Login");
@@ -95,6 +101,35 @@ public class loginWindow extends JFrame {
         public void mouseMoved(MouseEvent event) {}
 
         public void mouseDragged(MouseEvent event) {}
+	}
+	
+	private class enterHandler implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			login credentials = new login();
+  			credentials.user = UserField.getText();
+  			credentials.pass = new String(PassField.getPassword());
+  			int c=0;
+
+  			for (int i=0; i<loginDatabase.length; i++) {
+  				if (loginDatabase[i].user.equals(credentials.user) && loginDatabase[i].pass.equals(credentials.pass)) {
+  					setVisible(false);
+               try {
+                  window MainWindow = new window();
+                  MainWindow.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+                  MainWindow.setSize(600,400);
+                  MainWindow.setVisible(true);
+                  MainWindow.setResizable(false);
+                  MainWindow.setLocationRelativeTo(null);
+               } catch (IOException ev) {}
+               c++;
+  				   break;
+  				}
+  			}
+
+  			if (c==0) JOptionPane.showMessageDialog(null, "O username e/ou password estão errados!");
+			
+		}
+		
 	}
 
 	public static login[] loadLogin() throws IOException {
