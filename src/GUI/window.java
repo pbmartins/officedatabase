@@ -39,6 +39,11 @@ public class window extends JFrame {
     public window() throws IOException {
     	super("Office Database");
     	setLayout(new FlowLayout());
+    	setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setSize(new Dimension(600,400));
+        setVisible(true);
+        setResizable(false);
+        setLocationRelativeTo(null);
 
         //Load Database
         database = loadDatabase();

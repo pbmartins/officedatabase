@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,14 +17,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 /**
  *
  * @author pedromartins
  */
 public class loginWindow extends JFrame {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private JLabel UserLabel;
 	private JLabel PassLabel;
@@ -36,6 +36,11 @@ public class loginWindow extends JFrame {
 	public loginWindow() throws IOException {
 		super("Office Database - Login");
 		setLayout(new FlowLayout());
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(new Dimension(400,150));
+        setVisible(true);
+        setResizable(false);
+        setLocationRelativeTo(null);
 
 		//Load Login Database
 		loginDatabase = loadLogin();
@@ -113,14 +118,15 @@ public class loginWindow extends JFrame {
   			for (int i=0; i<loginDatabase.length; i++) {
   				if (loginDatabase[i].user.equals(credentials.user) && loginDatabase[i].pass.equals(credentials.pass)) {
   					setVisible(false);
-               try {
-                  window MainWindow = new window();
-                  MainWindow.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-                  MainWindow.setSize(600,400);
-                  MainWindow.setVisible(true);
-                  MainWindow.setResizable(false);
-                  MainWindow.setLocationRelativeTo(null);
-               } catch (IOException ev) {}
+  					SwingUtilities.invokeLater(new Runnable() {
+  			        	public void run() {
+  			        		try {
+  								new loginWindow();
+  							} catch (IOException e) {
+  								e.printStackTrace();
+  							}
+  			        	}
+  			        });
                c++;
   				   break;
   				}

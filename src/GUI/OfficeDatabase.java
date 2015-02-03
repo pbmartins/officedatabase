@@ -2,7 +2,7 @@ package GUI;
 
 import java.io.IOException;
 import java.util.Scanner;
-import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 /**
  *
  * @author pedromartins
@@ -13,12 +13,16 @@ public class OfficeDatabase {
     
     public static void main(String[] args) throws IOException {
         
-        loginWindow LoginWindow = new loginWindow();
-        LoginWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        LoginWindow.setSize(400,150);
-        LoginWindow.setVisible(true);
-        LoginWindow.setResizable(false);
-        LoginWindow.setLocationRelativeTo(null);
+        SwingUtilities.invokeLater(new Runnable() {
+        	public void run() {
+        		try {
+					new loginWindow();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        	}
+        });
+        
 
     }
 
