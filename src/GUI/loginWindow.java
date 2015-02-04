@@ -10,6 +10,8 @@ import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
+import java.sql.*;
+import org.sqlite.*;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,6 +23,7 @@ import javax.swing.JTextField;
  *
  * @author pedromartins
  */
+@SuppressWarnings("unused")
 public class loginWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -29,8 +32,8 @@ public class loginWindow extends JFrame {
 	private JTextField UserField;
 	private JPasswordField PassField;
 	private JButton LoginButton;
-
-	static login loginDatabase[];
+	
+	Connection connection = null;
 
 	public loginWindow() throws IOException {
 		super("Office Database - Login");
@@ -41,7 +44,7 @@ public class loginWindow extends JFrame {
         setLocationRelativeTo(null);
 
 		//Load Login Database
-		loginDatabase = loadLogin();
+		connection = sqlConnection.dbConnector();
 
 		//Structure
 		enterHandler enter_handler = new enterHandler();
@@ -68,14 +71,21 @@ public class loginWindow extends JFrame {
 
 	private class loginHandler implements MouseListener, MouseMotionListener {
 		public void mouseClicked(MouseEvent event) {
-  			login credentials = new login();
-  			credentials.user = UserField.getText();
-  			credentials.pass = new String(PassField.getPassword());
-  			int c=0;
-
-  			for (int i=0; i<loginDatabase.length; i++) {
-  				if (loginDatabase[i].user.equals(credentials.user) && loginDatabase[i].pass.equals(credentials.pass)) {
-  					setVisible(false);
+			try {
+				String query = "select * from login where username=? and password=?";
+				PreparedStatement pst = connection.prepareStatement(query);
+				pst.setString(1, UserField.getText());
+				pst.setString(2, new String(PassField.getPassword()));
+				
+				ResultSet rs = pst.executeQuery();
+				int c=0;
+				
+				while(rs.next()==true) {
+					c++;
+				}
+				
+				if(c==1) {
+					setVisible(false);
   					window newWindow;
 					try {
 						newWindow = new window();
@@ -83,12 +93,12 @@ public class loginWindow extends JFrame {
 					} catch (IOException e2) {
 						e2.printStackTrace();
 					}
-					c++;
-  				   	break;
-  				}
-  			}
-
-  			if (c==0) JOptionPane.showMessageDialog(null, "O username e/ou password estão errados!");
+				} else JOptionPane.showMessageDialog(null, "O username e/ou password estão errados!");
+				rs.close();
+				pst.close();
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1);
+			}
             
         }
 
@@ -107,76 +117,38 @@ public class loginWindow extends JFrame {
 	
 	private class enterHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			login credentials = new login();
-  			credentials.user = UserField.getText();
-  			credentials.pass = new String(PassField.getPassword());
-  			int c=0;
-
-  			for (int i=0; i<loginDatabase.length; i++) {
-  				if (loginDatabase[i].user.equals(credentials.user) && loginDatabase[i].pass.equals(credentials.pass)) {
-  					setVisible(false);
+			try {
+				String query = "select * from login where username=? and password=?";
+				PreparedStatement pst = connection.prepareStatement(query);
+				pst.setString(1, UserField.getText());
+				pst.setString(2, new String(PassField.getPassword()));
+				
+				ResultSet rs = pst.executeQuery();
+				int c=0;
+				
+				while(rs.next()==true) {
+					c++;
+				}
+				
+				if(c==1) {
+					setVisible(false);
   					window newWindow;
 					try {
 						newWindow = new window();
 						newWindow.setVisible(true);
-					} catch (IOException e1) {
-						e1.printStackTrace();
+					} catch (IOException e2) {
+						e2.printStackTrace();
 					}
-  					c++;
-  					break;
-  				}
-  			}
-
-  			if (c==0) JOptionPane.showMessageDialog(null, "O username e/ou password estão errados!");
+				} else JOptionPane.showMessageDialog(null, "O username e/ou password estão errados!");
+				rs.close();
+				pst.close();
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, e1);
+			}
 			
 		}
 		
 	}
 
-	public static login[] loadLogin() throws IOException {
-        File database_file = new File("login.txt");
-        Scanner sf = new Scanner(database_file);
-        int interval = 5, i=0;
-        
-        login loginDatabase[] = new login[interval];
-        login b[];
-        
-        
-        while (sf.hasNextLine()) {
-            if (i<interval) {
-                login newC = new login();
-                newC.user = sf.nextLine();
-                newC.pass = sf.nextLine();
-                loginDatabase[i] = newC;
-                i++;
-            } else {
-                b = loginDatabase;
-                loginDatabase = new login[interval+=interval];
-                for (int j=0; j<b.length; j++) {
-                    loginDatabase[j] = b[j];
-                }
-                login newC = new login();
-                newC.user = sf.nextLine();
-                newC.pass = sf.nextLine();
-                loginDatabase[i] = newC;
-                i++;
-            }
-        }
-        sf.close();
-        
-        if (i<interval) {
-            b = loginDatabase;
-            loginDatabase = new login[i];
-            for (int j=0; j<i; j++) {
-                loginDatabase[j] = b[j];
-            }
-        }
-        
-        return loginDatabase;
-    }
-}
 
-class login {
-	String user;
-	String pass;
 }

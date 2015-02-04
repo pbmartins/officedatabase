@@ -9,10 +9,16 @@ import javax.swing.table.*;
 
 import java.util.*;
 import java.io.*;
+import java.sql.*;
+
+import net.proteanit.sql.DbUtils;
+
+import org.sqlite.*;
 /**
  *
  * @author pedromartins
  */
+@SuppressWarnings("unused")
 public class window extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -32,10 +38,8 @@ public class window extends JFrame {
     private TableModel model;
     private JScrollPane scrollListPane;
 
-    //Load Database
-    static file database[];
+    Connection connection = null;
     
-
     public window() throws IOException {
     	super("Office Database");
     	setLayout(new FlowLayout());
@@ -45,7 +49,7 @@ public class window extends JFrame {
         setLocationRelativeTo(null);
 
         //Load Database
-        database = loadDatabase();
+        connection = sqlConnection.dbConnector();
         addWindowListener(new WindowHandler());
 
         //Adicionar à base de dados
@@ -86,33 +90,26 @@ public class window extends JFrame {
         SearchCB = new JComboBox<String>(args);
         add(SearchCB);
 
-
-
         //Tabela
 
-        Object column_names[] = {
-            "Nome do cliente",
-            "Tipo de processo",
-            "Número do processo"
-        };
-
-        Object data[][] = new Object[database.length][3];
-
-        for (int i=0; i<database.length; i++) {
-            data[i][0] = database[i].name;
-            data[i][1] = database[i].file_type;
-            data[i][2] = database[i].file_number;
+        try {
+        	String query = "select * from office";
+        	PreparedStatement pst = connection.prepareStatement(query);
+        	ResultSet rs = pst.executeQuery();
+        	
+        	model = DbUtils.resultSetToTableModel(rs);
+        	
+        	rs.close();
+        	pst.close();
+        } catch (Exception e) {
+        	JOptionPane.showMessageDialog(null, e);
         }
 
-        model = new DefaultTableModel(data, column_names) {
-			private static final long serialVersionUID = 1L;
-			@Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
         ListTable = new JTable(model);
+        ListTable.getTableHeader().getColumnModel().getColumn(0).setHeaderValue("Nome");
+        ListTable.getTableHeader().getColumnModel().getColumn(1).setHeaderValue("Tipo de Processo");
+        ListTable.getTableHeader().getColumnModel().getColumn(2).setHeaderValue("Número do Processo");
+        repaint();
 
         TableColumn list_column = null;
         for (int i=0; i<3; i++) {
@@ -147,27 +144,25 @@ public class window extends JFrame {
             
             if (NameField.getText().length()==0 || FileTypeField.getText().length()==0 || FileNumberField.getText().length()==0) JOptionPane.showMessageDialog(null,"Nenhum campo pode estar vazio!");
             else {
-            	file newC = new file();
-
-                newC.name = NameField.getText();
-                newC.file_type = FileTypeField.getText();
-                newC.file_number = Integer.parseInt(FileNumberField.getText());
-            
-                //Add to File
-                file b[] = database;
-                database = new file[b.length+1];
-                int i;
-
-                for (i=0; i<b.length; i++) {
-                	database[i] = b[i];
-                } 
-
-                database[i] = newC;
-
                 //Add to Table
                 DefaultTableModel model = (DefaultTableModel) ListTable.getModel();
                 model.addRow(new Object[] { NameField.getText(), FileTypeField.getText(), Integer.parseInt(FileNumberField.getText()) });
+                
+                try {
+                	String query = "insert into office (rowid, name, file_type, file_number) values (?, ?, ?, ?)";
+                	PreparedStatement pst = connection.prepareStatement(query);
+                	pst.setInt(1, ListTable.getRowCount());
+                	pst.setString(2, NameField.getText());
+                	pst.setString(3, FileTypeField.getText());
+                	pst.setString(4, FileNumberField.getText());
+                	
+                	pst.execute();
 
+                	pst.close();
+                } catch (Exception e) {
+                	JOptionPane.showMessageDialog(null, e);
+                }
+                
                 JOptionPane.showMessageDialog(null,"Arquivo adicionado com sucesso!");
         }
         }
@@ -251,26 +246,59 @@ public class window extends JFrame {
         public void mouseClicked(MouseEvent event) {
             //Remove from Table
             int remove=0, c=0;
+            String remove_filenumber = new String();
             DefaultTableModel model = (DefaultTableModel) ListTable.getModel();
-            for (int i=0; i<database.length; i++) {
-                Object name_row = model.getValueAt(i,0);
-                Object filenumber_row = model.getValueAt(i,2);
-                String s1 = name_row.toString().toLowerCase();
-                String s2 = NameField.getText().toLowerCase();
-                int i1 = Integer.parseInt(filenumber_row.toString());
-                int i2 = Integer.parseInt(FileNumberField.getText());
-                if (s1.indexOf(s2)>-1 || i1==i2) {
-                    remove=i;
-                    c++;
-                }
+            
+            if (NameField.getText().length()==0 && FileNumberField.getText().length()==0) {
+            	JOptionPane.showMessageDialog(null, "Tem de preencher o campo 'Nome' ou 'Número do Processo' para poder remover");
+            } else if (NameField.getText().length()==0 && FileNumberField.getText().length()!=0) {
+            	for (int i=0; i<ListTable.getRowCount(); i++) {
+            		Object filenumber_row = model.getValueAt(i,2);
+            		if (filenumber_row.toString().equals(FileNumberField.getText())) {
+            			remove_filenumber = filenumber_row.toString();
+                        remove=i;
+                        c++;
+            		}
+            	}
+            } else if (NameField.getText().length()!=0 && FileNumberField.getText().length()==0) {
+            	for (int i=0; i<ListTable.getRowCount(); i++) {
+            		Object name_row = model.getValueAt(i,0);
+            		Object filenumber_row = model.getValueAt(i,2);
+            		if (name_row.toString().equals(NameField.getText())) {
+            			remove_filenumber = filenumber_row.toString();
+                        remove=i;
+                        c++;
+            		}
+            	}
+            } else if (NameField.getText().length()!=0 && FileNumberField.getText().length()!=0) {
+            	for (int i=0; i<ListTable.getRowCount(); i++) {
+            		Object name_row = model.getValueAt(i,0);
+            		Object filenumber_row = model.getValueAt(i,2);
+            		if (name_row.toString().equals(NameField.getText()) || filenumber_row.toString().equals(FileNumberField.getText())) {
+            			remove_filenumber = filenumber_row.toString();
+                        remove=i;
+                        c++;
+            		}
+            	}
             }
             
             if(c==0) JOptionPane.showMessageDialog(null,"Não existe nenhum arquivo com o nome inserido!");
             else {
+            	//Delete from table
                 model.removeRow(remove);
+                
+                //Delete from database
+                try{
+                	String query = "delete from office where file_number=?";
+                	PreparedStatement pst = connection.prepareStatement(query);
+                	pst.setString(1, remove_filenumber);
+                	pst.execute();
+                	pst.close();
+                } catch (Exception e) {
+                	JOptionPane.showMessageDialog(null, e);
+                }
+                
                 JOptionPane.showMessageDialog(null,"Arquivo removido com sucesso!");
-                //Remove from File
-                database = removeIndexFile(remove);
             }
 
         }
@@ -322,13 +350,7 @@ public class window extends JFrame {
         public void windowOpened(WindowEvent event) {}
 
         public void windowClosing(WindowEvent event) {
-            
-            try{
-                saveDatabase();
-            }
-            catch(IOException e){
-                //do something with e... log, perhaps rethrow etc.
-            }
+
             int closing = JOptionPane.showConfirmDialog(null,"Tem a certeza que pretende sair?");
             if (closing==JOptionPane.YES_OPTION) {
                 System.exit(0);
@@ -347,87 +369,4 @@ public class window extends JFrame {
         public void windowDeactivated(WindowEvent event) {}
     }
 
-    public static file[] loadDatabase() throws IOException {
-        File database_file = new File("database.txt");
-        Scanner sf = new Scanner(database_file);
-        int interval = 5, i=0;
-        String tmp_file_number = new String();
-        
-        file database[] = new file[interval];
-        file b[];
-        
-        
-        while (sf.hasNextLine()) {
-            if (i<interval) {
-                file newC = new file();
-                newC.name = sf.nextLine();
-                newC.file_type = sf.nextLine();
-                tmp_file_number = sf.nextLine();
-                newC.file_number = Integer.parseInt(tmp_file_number);
-                database[i] = newC;
-                i++;
-            } else {
-                b = database;
-                database = new file[interval+=interval];
-                for (int j=0; j<b.length; j++) {
-                    database[j] = b[j];
-                }
-                file newC = new file();
-                newC.name = sf.nextLine();
-                newC.file_type = sf.nextLine();
-                tmp_file_number = sf.nextLine();
-                newC.file_number = Integer.parseInt(tmp_file_number);
-                database[i] = newC;
-                i++;
-            }
-        }
-        sf.close();
-        
-        if (i<interval) {
-            b = database;
-            database = new file[i];
-            for (int j=0; j<i; j++) {
-                database[j] = b[j];
-            }
-        }
-        
-        return database;
-    }
-
-    public static file[] removeIndexFile(int index) {
-        file database_final[] = new file[database.length-1];
-        int i;
-
-        for (i=0; i<database.length; i++) {
-            if (i==index) break;
-            else {
-                database_final[i] = database[i];
-            }
-        }
-
-        for (int j=i+1; j<database.length; j++) {
-            database_final[j-1] = database[j];
-        }
-
-        return database_final;
-    }
-
-    public static void saveDatabase() throws IOException {
-        File database_file = new File("database.txt");
-        PrintWriter pw = new PrintWriter(database_file);
-        for (int i=0; i<database.length; i++) {
-            pw.println(database[i].name);
-            pw.println(database[i].file_type);
-            pw.println(database[i].file_number);
-        }
-        pw.close();
-        System.out.println("Salvo com sucesso.");
-    }
-
-}
-
-class file {
-    String name;
-    String file_type;
-    int file_number;
 }

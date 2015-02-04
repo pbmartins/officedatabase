@@ -2,11 +2,15 @@ package GUI;
 
 import java.io.IOException;
 import java.util.Scanner;
+
 import javax.swing.SwingUtilities;
+
+import org.sqlite.*;
 /**
  *
  * @author pedromartins
  */
+@SuppressWarnings("unused")
 public class OfficeDatabase {
     
     static Scanner sc = new Scanner (System.in);
