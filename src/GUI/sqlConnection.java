@@ -13,8 +13,7 @@ public class sqlConnection {
 	public static Connection dbConnector() {
 		try {
 			Class.forName("org.sqlite.JDBC");
-			Connection conn = DriverManager.getConnection("jdbc:sqlite:/Users/pedromartins/Documents/Projects/officedatabase.sqlite");
-			JOptionPane.showMessageDialog(null, "Connection successful!");
+			Connection conn = DriverManager.getConnection("jdbc:sqlite:resources/officedatabase.sqlite");
 			
 			return conn;
 		} catch(Exception e) {
