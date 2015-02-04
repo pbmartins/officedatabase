@@ -16,12 +16,14 @@ public class OfficeDatabase {
         SwingUtilities.invokeLater(new Runnable() {
         	public void run() {
         		try {
-					new loginWindow();
+					loginWindow newLoginWindow = new loginWindow();
+					newLoginWindow.setVisible(true);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
         	}
         });
+        
         
 
     }

@@ -41,7 +41,6 @@ public class window extends JFrame {
     	setLayout(new FlowLayout());
     	setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setSize(new Dimension(600,400));
-        setVisible(true);
         setResizable(false);
         setLocationRelativeTo(null);
 

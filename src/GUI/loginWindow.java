@@ -17,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 /**
  *
  * @author pedromartins
@@ -38,7 +37,6 @@ public class loginWindow extends JFrame {
 		setLayout(new FlowLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(new Dimension(400,150));
-        setVisible(true);
         setResizable(false);
         setLocationRelativeTo(null);
 
@@ -78,16 +76,15 @@ public class loginWindow extends JFrame {
   			for (int i=0; i<loginDatabase.length; i++) {
   				if (loginDatabase[i].user.equals(credentials.user) && loginDatabase[i].pass.equals(credentials.pass)) {
   					setVisible(false);
-               try {
-                  window MainWindow = new window();
-                  MainWindow.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-                  MainWindow.setSize(600,400);
-                  MainWindow.setVisible(true);
-                  MainWindow.setResizable(false);
-                  MainWindow.setLocationRelativeTo(null);
-               } catch (IOException e) {}
-               c++;
-  				   break;
+  					window newWindow;
+					try {
+						newWindow = new window();
+						newWindow.setVisible(true);
+					} catch (IOException e2) {
+						e2.printStackTrace();
+					}
+					c++;
+  				   	break;
   				}
   			}
 
@@ -118,17 +115,15 @@ public class loginWindow extends JFrame {
   			for (int i=0; i<loginDatabase.length; i++) {
   				if (loginDatabase[i].user.equals(credentials.user) && loginDatabase[i].pass.equals(credentials.pass)) {
   					setVisible(false);
-  					SwingUtilities.invokeLater(new Runnable() {
-  			        	public void run() {
-  			        		try {
-  								new loginWindow();
-  							} catch (IOException e) {
-  								e.printStackTrace();
-  							}
-  			        	}
-  			        });
-               c++;
-  				   break;
+  					window newWindow;
+					try {
+						newWindow = new window();
+						newWindow.setVisible(true);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+  					c++;
+  					break;
   				}
   			}
 
