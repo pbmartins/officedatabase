@@ -22,15 +22,31 @@ import org.sqlite.*;
 public class window extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private JLabel NameLabel;
-    private JLabel FileTypeLabel;
-    private JLabel FileNumberLabel;
-    private JTextField NameField;
-    private JTextField FileTypeField;
-    private JTextField FileNumberField;
+	private JTabbedPane TabbedPane;
+	private JPanel AddPanel;
+	private JPanel SearchPanel;
+	private JPanel RemovePanel;
+	private JPanel EditPanel;
+	private JLabel AddNameLabel;
+    private JLabel AddFileTypeLabel;
+    private JLabel AddFileNumberLabel;
+    private JTextField AddNameField;
+    private JTextField AddFileTypeField;
+    private JTextField AddFileNumberField;
+    private JLabel SearchNameLabel;
+    private JLabel SearchFileTypeLabel;
+    private JLabel SearchFileNumberLabel;
+    private JTextField SearchNameField;
+    private JTextField SearchFileTypeField;
+    private JTextField SearchFileNumberField;
+    private JLabel RemoveNameLabel;
+    private JLabel RemoveFileTypeLabel;
+    private JLabel RemoveFileNumberLabel;
+    private JTextField RemoveNameField;
+    private JTextField RemoveFileTypeField;
+    private JTextField RemoveFileNumberField;
     private JButton AddButton;
     private JButton RemoveButton;
-    private JButton SearchButton;
     private JButton ResetButton;
     private JComboBox<String> SearchCB;
 
@@ -44,51 +60,100 @@ public class window extends JFrame {
     	super("Office Database");
     	setLayout(new FlowLayout());
     	setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        setSize(new Dimension(600,400));
+        setSize(new Dimension(600,470));
         setResizable(false);
         setLocationRelativeTo(null);
 
         //Load Database
         connection = sqlConnection.dbConnector();
         addWindowListener(new WindowHandler());
+        
+        //Tabbed Menu
+        TabbedPane = new JTabbedPane();
 
         //Adicionar à base de dados
-        NameLabel = new JLabel("Nome do cliente:");
-    	add(NameLabel);
-        NameField = new JTextField("",32);
-        add(NameField);
+        AddPanel = new JPanel();
+        AddPanel.setLayout(new FlowLayout());
+        AddPanel.setPreferredSize(new Dimension(500,140));
+        
+        AddNameLabel = new JLabel("Nome do cliente:");
+    	AddPanel.add(AddNameLabel);
+    	AddNameField = new JTextField("",25);
+        AddPanel.add(AddNameField);
 
-        FileTypeLabel = new JLabel("Tipo de processo:");
-        add(FileTypeLabel);
-        FileTypeField = new JTextField("",32);
-        add(FileTypeField);
+        AddFileTypeLabel = new JLabel("Tipo de processo:");
+        AddPanel.add(AddFileTypeLabel);
+        AddFileTypeField = new JTextField("",25);
+        AddPanel.add(AddFileTypeField);
 
-        FileNumberLabel = new JLabel("Número do processo:");
-        add(FileNumberLabel);
-        FileNumberField = new JTextField("",30);
-        add(FileNumberField);
+        AddFileNumberLabel = new JLabel("Número do processo:");
+        AddPanel.add(AddFileNumberLabel);
+        AddFileNumberField = new JTextField("",22);
+        AddPanel.add(AddFileNumberField);
 
         AddButton = new JButton("Adicionar");
         addDatabaseHandler AddButton_Handler = new addDatabaseHandler();
         AddButton.addMouseListener(AddButton_Handler);
         AddButton.addMouseMotionListener(AddButton_Handler);
-        add(AddButton);
+        AddPanel.add(AddButton);
+        
+        TabbedPane.addTab("Adicionar", AddPanel);
+        
+        //Pesquisar na base de dados
+        SearchPanel = new JPanel();
+        SearchPanel.setLayout(new FlowLayout());
+        SearchPanel.setPreferredSize(new Dimension(500,140));
+        
+        SearchNameLabel = new JLabel("Nome do cliente:");
+        SearchPanel.add(SearchNameLabel);
+    	SearchNameField = new JTextField("",25);
+    	SearchPanel.add(SearchNameField);
 
+        SearchFileTypeLabel = new JLabel("Tipo de processo:");
+        SearchPanel.add(SearchFileTypeLabel);
+        SearchFileTypeField = new JTextField("",25);
+        SearchPanel.add(SearchFileTypeField);
+
+        SearchFileNumberLabel = new JLabel("Número do processo:");
+        SearchPanel.add(SearchFileNumberLabel);
+        SearchFileNumberField = new JTextField("",22);
+        SearchPanel.add(SearchFileNumberField);
+        
+        String args[] = {"Conjuntamente","Independentemente"};
+        SearchCB = new JComboBox<String>(args);
+        SearchPanel.add(SearchCB);
+        
+        searchDatabaseHandler Search_Handler = new searchDatabaseHandler();
+        SearchNameField.addKeyListener(Search_Handler);
+        SearchFileTypeField.addKeyListener(Search_Handler);
+        SearchFileNumberField.addKeyListener(Search_Handler);
+        
+        TabbedPane.addTab("Pesquisar", SearchPanel);
+        
+      //Remover da base de dados
+        RemovePanel = new JPanel();
+        RemovePanel.setLayout(new FlowLayout());
+        RemovePanel.setPreferredSize(new Dimension(500,140));
+        
+        RemoveNameLabel = new JLabel("Nome do cliente:");
+        RemovePanel.add(RemoveNameLabel);
+        RemoveNameField = new JTextField("",25);
+        RemovePanel.add(RemoveNameField);
+
+        RemoveFileNumberLabel = new JLabel("Número do processo:");
+        RemovePanel.add(RemoveFileNumberLabel);
+        RemoveFileNumberField = new JTextField("",22);
+        RemovePanel.add(RemoveFileNumberField);
+        
         RemoveButton = new JButton("Remover");
         removeDatabaseHandler RemoveButton_Handler = new removeDatabaseHandler();
         RemoveButton.addMouseListener(RemoveButton_Handler);
         RemoveButton.addMouseMotionListener(RemoveButton_Handler);
-        add(RemoveButton);
+        RemovePanel.add(RemoveButton);
+        
+        TabbedPane.addTab("Remover", RemovePanel);
 
-        SearchButton = new JButton("Pesquisar");
-        searchDatabaseHandler SearchButton_Handler = new searchDatabaseHandler();
-        SearchButton.addMouseListener(SearchButton_Handler);
-        SearchButton.addMouseMotionListener(SearchButton_Handler);
-        add(SearchButton);
-
-        String args[] = {"Conjuntamente","Independentemente"};
-        SearchCB = new JComboBox<String>(args);
-        add(SearchCB);
+        add(TabbedPane);
 
         //Tabela
 
@@ -142,19 +207,19 @@ public class window extends JFrame {
         //Add to Database event
         public void mouseClicked(MouseEvent event) {
             
-            if (NameField.getText().length()==0 || FileTypeField.getText().length()==0 || FileNumberField.getText().length()==0) JOptionPane.showMessageDialog(null,"Nenhum campo pode estar vazio!");
+            if (AddNameField.getText().length()==0 || AddFileTypeField.getText().length()==0 || AddFileNumberField.getText().length()==0) JOptionPane.showMessageDialog(null,"Nenhum campo pode estar vazio!");
             else {
                 //Add to Table
                 DefaultTableModel model = (DefaultTableModel) ListTable.getModel();
-                model.addRow(new Object[] { NameField.getText(), FileTypeField.getText(), Integer.parseInt(FileNumberField.getText()) });
+                model.addRow(new Object[] { AddNameField.getText(), AddFileTypeField.getText(), AddFileNumberField.getText() });
                 
                 try {
                 	String query = "insert into office (rowid, name, file_type, file_number) values (?, ?, ?, ?)";
                 	PreparedStatement pst = connection.prepareStatement(query);
                 	pst.setInt(1, ListTable.getRowCount());
-                	pst.setString(2, NameField.getText());
-                	pst.setString(3, FileTypeField.getText());
-                	pst.setString(4, FileNumberField.getText());
+                	pst.setString(2, AddNameField.getText());
+                	pst.setString(3, AddFileTypeField.getText());
+                	pst.setString(4, AddFileNumberField.getText());
                 	
                 	pst.execute();
 
@@ -164,6 +229,10 @@ public class window extends JFrame {
                 }
                 
                 JOptionPane.showMessageDialog(null,"Arquivo adicionado com sucesso!");
+                
+                AddNameField.setText(null);
+                AddFileTypeField.setText(null);
+                AddFileNumberField.setText(null);
         }
         }
 
@@ -180,12 +249,12 @@ public class window extends JFrame {
         public void mouseDragged(MouseEvent event) {}
     }
 
-    private class searchDatabaseHandler implements MouseListener, MouseMotionListener {
+    private class searchDatabaseHandler implements KeyListener {
         //Search Database event
-        public void mouseClicked(MouseEvent event) {
-            String name = NameField.getText();
-            String file_type = FileTypeField.getText();
-            String file_number = FileNumberField.getText();
+        public void keyReleased(KeyEvent event) {
+            String name = SearchNameField.getText();
+            String file_type = SearchFileTypeField.getText();
+            String file_number = SearchFileNumberField.getText();
 
             //Search in table
             
@@ -214,10 +283,8 @@ public class window extends JFrame {
                 filters.add(RowFilter.regexFilter("(?i)"+file_number));
             }
 
-            if (name.length()==0 && file_type.length()==0 && file_number.length()==0) {
-                sorter.setRowFilter(null);
-                JOptionPane.showMessageDialog(null,"Pelo menos, um dos campos não pode estar em branco");
-            } else if(SearchCB.getSelectedIndex()==0) {
+
+            if(SearchCB.getSelectedIndex()==0) {
                 RowFilter<TableModel, Integer> row_filter = RowFilter.andFilter(filters);
                 sorter.setRowFilter(row_filter);
             } else if(SearchCB.getSelectedIndex()==1) {
@@ -228,17 +295,9 @@ public class window extends JFrame {
             
         }
 
-        public void mousePressed(MouseEvent event) {}
+        public void keyPressed(KeyEvent event) {}
 
-        public void mouseReleased(MouseEvent event) {}
-
-        public void mouseEntered(MouseEvent event) {}
-
-        public void mouseExited(MouseEvent event) {}
-
-        public void mouseMoved(MouseEvent event) {}
-
-        public void mouseDragged(MouseEvent event) {}
+        public void keyTyped(KeyEvent event) {}
     }
 
     private class removeDatabaseHandler implements MouseListener, MouseMotionListener {
@@ -249,32 +308,32 @@ public class window extends JFrame {
             String remove_filenumber = new String();
             DefaultTableModel model = (DefaultTableModel) ListTable.getModel();
             
-            if (NameField.getText().length()==0 && FileNumberField.getText().length()==0) {
+            if (RemoveNameField.getText().length()==0 && RemoveFileNumberField.getText().length()==0) {
             	JOptionPane.showMessageDialog(null, "Tem de preencher o campo 'Nome' ou 'Número do Processo' para poder remover");
-            } else if (NameField.getText().length()==0 && FileNumberField.getText().length()!=0) {
+            } else if (RemoveNameField.getText().length()==0 && RemoveFileNumberField.getText().length()!=0) {
             	for (int i=0; i<ListTable.getRowCount(); i++) {
             		Object filenumber_row = model.getValueAt(i,2);
-            		if (filenumber_row.toString().equals(FileNumberField.getText())) {
+            		if (filenumber_row.toString().equals(RemoveFileNumberField.getText())) {
             			remove_filenumber = filenumber_row.toString();
                         remove=i;
                         c++;
             		}
             	}
-            } else if (NameField.getText().length()!=0 && FileNumberField.getText().length()==0) {
+            } else if (RemoveNameField.getText().length()!=0 && RemoveFileNumberField.getText().length()==0) {
             	for (int i=0; i<ListTable.getRowCount(); i++) {
             		Object name_row = model.getValueAt(i,0);
             		Object filenumber_row = model.getValueAt(i,2);
-            		if (name_row.toString().equals(NameField.getText())) {
+            		if (name_row.toString().equals(RemoveNameField.getText())) {
             			remove_filenumber = filenumber_row.toString();
                         remove=i;
                         c++;
             		}
             	}
-            } else if (NameField.getText().length()!=0 && FileNumberField.getText().length()!=0) {
+            } else if (RemoveNameField.getText().length()!=0 && RemoveFileNumberField.getText().length()!=0) {
             	for (int i=0; i<ListTable.getRowCount(); i++) {
             		Object name_row = model.getValueAt(i,0);
             		Object filenumber_row = model.getValueAt(i,2);
-            		if (name_row.toString().equals(NameField.getText()) || filenumber_row.toString().equals(FileNumberField.getText())) {
+            		if (name_row.toString().equals(RemoveNameField.getText()) || filenumber_row.toString().equals(RemoveFileNumberField.getText())) {
             			remove_filenumber = filenumber_row.toString();
                         remove=i;
                         c++;
@@ -299,6 +358,9 @@ public class window extends JFrame {
                 }
                 
                 JOptionPane.showMessageDialog(null,"Arquivo removido com sucesso!");
+                
+                RemoveNameField.setText(null);
+                RemoveFileNumberField.setText(null);
             }
 
         }
@@ -327,9 +389,16 @@ public class window extends JFrame {
             
             //Reset Fields
             
-            NameField.setText(null);
-            FileTypeField.setText(null);
-            FileNumberField.setText(null);
+            AddNameField.setText(null);
+            AddFileTypeField.setText(null);
+            AddFileNumberField.setText(null);
+            
+            SearchNameField.setText(null);
+            SearchFileTypeField.setText(null);
+            SearchFileNumberField.setText(null);
+            
+            RemoveNameField.setText(null);
+            RemoveFileNumberField.setText(null);
             
         }
 
@@ -354,7 +423,7 @@ public class window extends JFrame {
             int closing = JOptionPane.showConfirmDialog(null,"Tem a certeza que pretende sair?");
             if (closing==JOptionPane.YES_OPTION) {
                 System.exit(0);
-            }
+            } 
 
         }
 
